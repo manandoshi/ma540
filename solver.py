@@ -4,8 +4,9 @@ from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.animation as animation
 
 def u_0(x):
-    return np.sin(np.pi*x)
+    #return np.sin(np.pi*x)
     #return np.e**(-x*x)
+    return np.maximum(0,1-x*x)
 
 def l_boundary(x):
     return np.zeros_like(x)
@@ -14,13 +15,13 @@ def r_boundary(x):
     return np.zeros_like(x)
 
 class Solver:
-    def __init__(self, dt=5e-4, dx=5e-2, a=0.6, space="F", 
+    def __init__(self, dt=5e-4, courant=1e-1, a=0.6, space="F", 
                  time="B", Th=2.0, x_min=-2.0, x_max=2.0, 
                  u0=u_0, l_boundary=l_boundary, r_boundary=r_boundary):
         
         #Setting space and timestep size
         self.dt = dt
-        self.dx = dx
+        self.dx = dx = abs(a*self.dt)/courant
         
         #Setting wavespeed
         self.a  = a
@@ -64,15 +65,34 @@ class Solver:
 
     def update_u(self, i):
         #Backward in time
-        if self.time.lower() == 'b' or self.time.lower() == 'backward':
+        if self.time.lower() == 'f' or self.time.lower() == 'backward':
             self.u[:,i+1] = self.u[:,i] - self.a*(self.dt)*self.u_x[:,i]
 
         if self.time.lower() == 'c' or self.time.lower() == 'central':
-            if i != 1:
+            if i != 0:
                 self.u[:,i+1] = self.u[:,i-1] - 2*self.a*(self.dt)*self.u_x[:,i]
             else:
                 self.u[:,i+1] = self.u[:,i] - self.a*(self.dt)*self.u_x[:,i]
 
+        if self.time.lower() == 'lf' or self.time.lower() == 'lax friedrich' or self.time.lower() == 'lax-friedrich' :
+            u_t = 0.5*(np.roll(self.u[:,i],1) + np.roll(self.u[:,i],-1))
+            u_t[0]  = self.u[0,i]
+            u_t[-1] = self.u[-1,i]
+            self.u[:,i+1] = u_t - self.a*(self.dt)*self.u_x[:,i]
+
+        if self.time.lower() == 'lw' or self.time.lower() == 'lax wendroff' or self.time.lower() == 'lax-wendroff' :
+            c = self.a*self.dt/self.dx
+
+            a_0 = 1-c**2
+            u_0 = self.u[:,i]
+
+            a_1 = c + (c**2)/2
+            u_1 = np.roll(self.u[:,i], 1)
+            
+            a_2 = (c**2)/2 - c
+            u_2 = np.roll(self.u[:,i], -1)
+
+            self.u[:,i+1] = a_0*u_0 + a_1*u_1 + a_2*u_2
         return
 
     def solve(self):
@@ -81,15 +101,17 @@ class Solver:
             self.update_u(i)
         return
 
-    def plot_contour(self, ax=None):
+    def plot_contour(self, ax=None, cb=True):
         if ax is None:
             plt.contour(self.x,self.t,self.u,200)
         else:
-            cs = ax.contourf(self.x,self.t,self.u,200)
+            cs = ax.contourf(self.x,self.t,self.u,200, vmin=-0.2, vmax=1.2)
             ax.set_xlabel('$x$')
             ax.set_ylabel('$t$')
-            cbar = plt.colorbar(cs)
-            cbar.ax.set_ylabel('$u$')
+            if cb:
+                cbar = plt.colorbar(cs)
+                cbar.ax.set_ylabel('$u$')
+            return cs
     
     def plot_3d(self, ax=None):
         if ax is None:
@@ -108,7 +130,7 @@ class Solver:
 
         def init():
             ax.set_ylim(-1.0, 1.0)
-            ax.set_xlim(-1.0, 1.0)
+            ax.set_xlim(self.x[0,0], self.x[-1,0])
             u_line.set_data(self.x[:,0], self.t[:,0])
             return u_line,
 
@@ -124,7 +146,7 @@ class Solver:
         ani.save('a.avi')
 
 if __name__ == '__main__':
-    s = Solver(space='b', time='f')
+    s = Solver(space='c', time='c', dt=1e-2, courant=0.8, Th=0.5)
     s.solve()
     fig = plt.figure()
     ax1 = fig.add_subplot(121, projection='3d')
