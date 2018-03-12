@@ -6,6 +6,33 @@
 \date{11 March 2018}
 \usepackage{graphicx}
 \usepackage{amsmath}
+\usepackage{color}
+\usepackage{listings}
+ 
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+ 
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+\lstset{style=mystyle}
 
 \begin{document}
 \graphicspath{{/}}
@@ -201,6 +228,9 @@ The following set of plots show the solution for various values of $\mu$ and $\t
     \includegraphics[scale=0.7]{mu20theta4}
     \caption{Solution for $\mu=2.0$ and $\theta=0.4$ (Unstable)}
 \end{figure}
+\clearpage
+\section{Code}
+\lstinputlisting[language=Python]{main.py}
 
 \section{Conclusion}
 We have successfully checked the convergence and stability of the $\theta$ method for the heat equation for various values of $\mu$ and $\theta$. We have shown that the sceme is stable for large time steps when $\theta \geq 0.5$ and is conditionally stable otherwise.

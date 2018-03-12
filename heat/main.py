@@ -3,11 +3,11 @@ import matplotlib.pyplot as plt
 
 #Following is the code for theta method to solve the heat equation
 
-
+#Initialization function
 def init_f(x, t=0):
     return np.sqrt(1e-4/(t+1e-4))*np.exp(-x**2/(4*(t+1e-4)))
 
-
+#Function to construct matrix for 1 side (see report)
 def construct_matrix(mu, theta, size):
     l = mu*theta
     mat = np.zeros([size,size])
@@ -16,13 +16,13 @@ def construct_matrix(mu, theta, size):
     mat[np.arange(size-1),np.arange(size-1)+1] = -1*l
     return mat
 
-
+#Function to create main 'A' matrix'
 def construct_mat(mu,theta,size):
     m1 = construct_matrix(mu,theta,size)
     m2 = construct_matrix(mu,theta-1,size)
     return np.linalg.inv(m1).dot(m2)
 
-
+#Main theta method code
 def theta_method(theta, mu, num_points, tsteps, init_fn = init_f):
     dx = 2.0/(num_points-1)
     dt = mu*(dx**2)
@@ -41,7 +41,7 @@ def theta_method(theta, mu, num_points, tsteps, init_fn = init_f):
     
     return U.T, X, T
     
-
+#Plot convergence plots for a given theta
 def convergence_study(theta):
     num_points = 41
     mu = np.linspace(0.01,0.61,301)
@@ -69,9 +69,8 @@ def convergence_study(theta):
     ax2.set_xlabel('$dt$')
     plt.tight_layout()
     plt.savefig('theta{:.0f}.png'.format(theta*10))
-    #plt.show()
 
-
+#Eigenval stability analysis for various mu and theta values
 def stability_analysis():
     mu = np.linspace(0,10,100)
     theta = np.linspace(0,1,100)
@@ -95,9 +94,8 @@ def stability_analysis():
     ax.set_title(r"Stability plot for $\theta$ method")
     plt.savefig('eig.png')
     plt.close()
-    #plt.show()
 
-
+#Code to generate plots for 1 instance of the theta method
 def plot_instance(theta, mu):
     num_points = 81
     dx = 2.0/(num_points-1)
@@ -116,12 +114,10 @@ def plot_instance(theta, mu):
     fig.subplots_adjust(top=0.85)
     plt.savefig('mu{:.0f}theta{:.0f}.png'.format(mu*10.0,theta*10.0))
     plt.close()
-    #plt.show()
     plt.figure()
     plt.contourf(X,T,U,200)
     plt.savefig('c_mu{:.0f}theta{:.0f}.png'.format(mu*10.0,theta*10.0))
     plt.close()
-    #plt.show()
 
 if __name__=='__main__':
     stability_analysis()
@@ -130,5 +126,3 @@ if __name__=='__main__':
     for mu in [0.25,0.6,2.0]:
         for theta in [0, 0.4, 0.5, 0.6, 1.0]:
             plot_instance(theta,mu)
-
-
