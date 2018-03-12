@@ -67,9 +67,9 @@ def convergence_study(theta):
     ax2.set_xlim([xmin*(dx**2), xmax*(dx**2)])
     ax2.loglog(dt, errors,'b')
     ax2.set_xlabel('$dt$')
-    #fig.subplots_adjust(top=0.8)
     plt.tight_layout()
-    plt.show()
+    plt.savefig('theta{:.0f}.png'.format(theta*10))
+    #plt.show()
 
 
 def stability_analysis():
@@ -94,18 +94,18 @@ def stability_analysis():
     ax.set_ylabel(r'$\theta$')
     ax.set_title(r"Stability plot for $\theta$ method")
     plt.savefig('eig.png')
-    plt.show()
+    plt.close()
+    #plt.show()
 
-if __name__=='__main__':
-    #stability_analysis()
-    for theta in np.linspace(0,1,21):
-        convergence_study(theta)
-    numsteps = 45
-    U, X, T = theta_method(1,0.6,100,numsteps)
-    plt.contourf(X,T,U,200)
 
+def plot_instance(theta, mu):
+    num_points = 81
+    dx = 2.0/(num_points-1)
+    dt = mu*(dx**2)
+    numsteps = int(0.01/(mu*dx**2))
+    U, X, T     = theta_method(theta, mu, num_points,numsteps)
     fig, axs = plt.subplots(3,3)
-    fig.suptitle(r'$\theta = 0.2$  $\frac{\Delta t}{\Delta x^2} = 0.2$')
+    fig.suptitle(r'$\theta = {}$'.format(theta)+'\t'+r'$\frac{\Delta t}{\Delta x^2} ='+ '{}$'.format(mu))
 
     for i,ax in enumerate(axs.flatten()):
         ax.plot(X[0,:],U[i*numsteps/9],'b-')
@@ -113,4 +113,22 @@ if __name__=='__main__':
         ax.set_title("t = {:.2f}ms".format(T[i*numsteps/9,0]*1000))
 
     plt.tight_layout()
-    plt.show()
+    fig.subplots_adjust(top=0.85)
+    plt.savefig('mu{:.0f}theta{:.0f}.png'.format(mu*10.0,theta*10.0))
+    plt.close()
+    #plt.show()
+    plt.figure()
+    plt.contourf(X,T,U,200)
+    plt.savefig('c_mu{:.0f}theta{:.0f}.png'.format(mu*10.0,theta*10.0))
+    plt.close()
+    #plt.show()
+
+if __name__=='__main__':
+    stability_analysis()
+    for theta in [0,0.4,0.5,0.6,1.0]:
+        convergence_study(theta)
+    for mu in [0.25,0.6,2.0]:
+        for theta in [0, 0.4, 0.5, 0.6, 1.0]:
+            plot_instance(theta,mu)
+
+

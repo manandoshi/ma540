@@ -1,0 +1,207 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\title{Assignment 2: $\Theta$-method for Heat equation}
+\author{Manan Doshi}
+\date{11 March 2018}
+\usepackage{graphicx}
+\usepackage{amsmath}
+
+\begin{document}
+\graphicspath{{/}}
+\maketitle
+
+\section{Introduction}
+The $\theta$ method is a semi-implicit forward time centered space scheme to solve the heat equation. The heat equation in one dimension is given as follows:
+\[
+\frac{\partial u}{\partial t} = \frac{\partial^2 u}{\partial x^2}
+\]
+
+\section{$\Theta$ Scheme}
+The scheme to solve the equation is as follows:
+
+\begin{align*}
+    \partial_t^{+}U_j^k &= (\theta) \partial_x^{+}\partial_x^{-}U_j^{k+1} + (1-\theta) \partial_x^{+}\partial_x^{-}U_j^k \\[1em]
+    \left(\frac{U_j^{k+1} - U_j^k}{\Delta t}\right) &= (\theta) \left(\frac{U^{k+1}_{j+1} - 2 U_j^{k+1} + U^{k+1}_{j-1}}{\Delta x^2}\right) 
+                    \\&+ (1-\theta)\left(\frac{U^{k}_{j+1} - 2 U_j^{k} + U^{k}_{j-1}}{\Delta x^2}\right) \\
+\end{align*}
+
+Setting $\lambda_1 = \left(\frac{\Delta t}{\Delta x^2}\right) \theta$ and $\lambda_2 = \left(\frac{\Delta t}{\Delta x^2}\right) (\theta-1)$, we can write it in a matrix-vector form,
+\[
+    \begin{bmatrix}
+        1 + 2\lambda_1 & -\lambda_1 & 0 &  \ldots & 0\\
+        -\lambda_1 & 1 + 2\lambda_1 & -\lambda_1 &  \ddots & 0 \\
+        0 & -\lambda_1 & 1 + 2\lambda_1 &  \ddots & 0 \\
+        \vdots & \ddots & \ddots & \ddots & \vdots \\
+        0 & \ldots & 0 & -\lambda_1 & 1 + 2\lambda_1  \\
+    \end{bmatrix}
+    \begin{bmatrix}
+        U_1^{k+1}\\
+        U_2^{k+1}\\
+        \vdots\\
+        \vdots\\
+        U_{J-1}^{k+1}
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+        1 + 2\lambda_2 & -\lambda_2 & 0 &  \ldots & 0\\
+        -\lambda_2 & 1 + 2\lambda_2 & -\lambda_2 &  \ddots & 0 \\
+        0 & -\lambda_2 & 1 + 2\lambda_2 &  \ddots & 0 \\
+        \vdots & \ddots & \ddots & \ddots & \vdots \\
+        0 & \ldots & 0 & -\lambda_2 & 1 + 2\lambda_2  \\
+    \end{bmatrix}
+    \begin{bmatrix}
+        U_1^{k}\\
+        U_2^{k}\\
+        \vdots\\
+        \vdots\\
+        U_{J-1}^{k}
+    \end{bmatrix}
+\]
+
+Taking the inverse, we can write it as a linear equation
+\[
+    U^{k+1} = {\bf A(\mu,\theta)}U^k
+\]
+
+The eigenvalues of the matrix ${\bf A}$ dictate the stability of the scheme.
+
+\newpage
+\section{Stability Analysis using eigenvalues}
+
+It can be clearly seen in \figurename{\ref{eig}} that the method is stable for $\theta \geq 0.5$ and for $\theta < 0.5$ when $\mu < 0.5$. This is what we obtained from Von-Neumann Stability analysis of the method.
+
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[scale=0.6]{eig}
+    \caption{Stability plot fot $\theta$ method}
+    \label{eig}
+\end{figure}
+
+\section{Convergence study}
+The following set of plots show the solution for various values of $\mu$ and $\theta$. The red line represents the exact solution and the blue line represents the numerical solution. The convergence plots are log log plotted against $\mu$ and $\Delta t$. The red line in this plot represents $\mu=0.5$. The contour plot represents the solution in the $x$-$t$ plane.
+
+\newpage
+\subsection{Explicit ($\theta = 0$)}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[scale=0.7]{theta0}
+    \caption{Convergence plot for $\theta=0$}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[scale=0.7]{mu2theta0}
+    \caption{Solution for $\mu=0.2$ and $\theta=0$}
+\end{figure}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[scale=0.7]{c_mu2theta0}
+    \caption{Solution for $\mu=0.2$ and $\theta=0$}
+\end{figure}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[scale=0.7]{mu6theta0}
+    \caption{Solution for $\mu=0.6$ and $\theta=0$ (Blowup. Unstable)}
+\end{figure}
+
+\clearpage
+\subsection{Implicit ($\theta = 1$)}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[scale=0.7]{theta10}
+    \caption{Convergence plot for $\theta=1$}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[scale=0.7]{mu2theta10}
+    \caption{Solution for $\mu=0.2$ and $\theta=1$}
+\end{figure}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[scale=0.7]{c_mu2theta10}
+    \caption{Solution for $\mu=0.2$ and $\theta=1$}
+\end{figure}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[scale=0.7]{mu20theta10}
+    \caption{Solution for $\mu=2.0$ and $\theta=1$}
+\end{figure}
+
+\clearpage
+\subsection{CN ($\theta = 0.5$)}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[scale=0.7]{theta5}
+    \caption{Convergence plot for $\theta=0.5$}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[scale=0.7]{mu2theta5}
+    \caption{Solution for $\mu=0.2$ and $\theta=0.5$}
+\end{figure}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[scale=0.7]{c_mu2theta5}
+    \caption{Solution for $\mu=0.2$ and $\theta=0.5$}
+\end{figure}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[scale=0.7]{mu6theta5}
+    \caption{Solution for $\mu=0.6$ and $\theta=0.5$}
+\end{figure}
+
+\clearpage
+\subsection{$\theta = 0.6$}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[scale=0.7]{theta6}
+    \caption{Convergence plot for $\theta=0.6$}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[scale=0.7]{mu2theta6}
+    \caption{Solution for $\mu=0.2$ and $\theta=0.6$}
+\end{figure}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[scale=0.7]{c_mu2theta6}
+    \caption{Solution for $\mu=0.2$ and $\theta=0.6$}
+\end{figure}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[scale=0.7]{mu20theta6}
+    \caption{Solution for $\mu=2.0$ and $\theta=0.6$}
+\end{figure}
+
+\clearpage
+\subsection{$\theta = 0.4$}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[scale=0.7]{theta4}
+    \caption{Convergence plot for $\theta=0.4$}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[scale=0.7]{mu2theta4}
+    \caption{Solution for $\mu=0.2$ and $\theta=0.4$}
+\end{figure}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[scale=0.7]{c_mu2theta4}
+    \caption{Solution for $\mu=0.2$ and $\theta=0.4$}
+\end{figure}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[scale=0.7]{mu20theta4}
+    \caption{Solution for $\mu=2.0$ and $\theta=0.4$ (Unstable)}
+\end{figure}
+
+\section{Conclusion}
+We have successfully checked the convergence and stability of the $\theta$ method for the heat equation for various values of $\mu$ and $\theta$. We have shown that the sceme is stable for large time steps when $\theta \geq 0.5$ and is conditionally stable otherwise.
+\end{document}
